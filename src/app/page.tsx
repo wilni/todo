@@ -1,17 +1,32 @@
+
 import { TodoItem } from "@/components/TodoItem";
 import prisma from "@/db";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { toEditorSettings } from "typescript";
+import { useState } from "react";
 
-// prisma.todo.create({data: {title: 'test', complete: false}})
+
 
 function getTodos() {
-  return prisma.todo.findMany()
+  let todos = prisma.todo.findMany()
+  return todos
 }
 
-export default async function Home() {
+async function toggleTodo(id: string, complete: boolean){
+  "use server"
+  await prisma.todo.update({where: {id}, data: {complete}})
+}
 
+// async function deleteTodo(id: string){
+//   "use server"
+//   await prisma.todo.delete({where: {id}})
+// }
+
+export default async function Home() {
   const todos = await getTodos()
+
+  
 
 
   return (
@@ -22,7 +37,7 @@ export default async function Home() {
       </header>
       <ul className="pl-4">
         {todos.map(todo => (
-          <TodoItem key={todo.id} {...todo} />
+          <TodoItem key={todo.id} {...todo} toggleTodo={toggleTodo}/>
         ))}
       </ul>
     </>
